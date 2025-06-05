@@ -3,9 +3,14 @@
     <string name="add">Add</string>
     <string name="check">Check</string>
     <string name="back">Back</string>
+    <string name="profile">Profile</string>
+    <string name="sign_in">Sign In</string>
 
     <string name="title_txt_field">Title</string>
     <string name="title_txt_field_err">Fill the title first</string>
     <string name="content_txt_field">Content</string>
     <string name="content_txt_field_err">Fill the content first</string>
+
+    <string name="close">Close</string>
+    <string name="logout">Log Out</string>
 </resources>

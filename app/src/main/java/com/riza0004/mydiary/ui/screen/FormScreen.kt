@@ -16,19 +16,26 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.riza0004.mydiary.R
+import com.riza0004.mydiary.dataclass.Notes
+import com.riza0004.mydiary.dataclass.User
+import com.riza0004.mydiary.network.UserDataStore
+import com.riza0004.mydiary.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +44,10 @@ fun FormScreen(navHostController: NavHostController = rememberNavController()){
     var content by remember { mutableStateOf("") }
     var nameIsErr by remember { mutableStateOf(false) }
     var contentIsErr by remember { mutableStateOf(false) }
+    val viewModel: MainViewModel = viewModel()
+    val context = LocalContext.current
+    val dataStore = UserDataStore(context)
+    val user by dataStore.userFlow.collectAsState(User())
     Scaffold(
         topBar = {
             TopAppBar(
@@ -59,6 +70,14 @@ fun FormScreen(navHostController: NavHostController = rememberNavController()){
                             nameIsErr = name.isBlank()
                             contentIsErr = content.isBlank()
                             if(!nameIsErr && !contentIsErr){
+                                viewModel.saveData(
+                                    Notes(
+                                        title = name,
+                                        content = content,
+                                        email = user.email,
+                                        photo =  ""
+                                    )
+                                )
                                 navHostController.popBackStack()
                             }
                         }

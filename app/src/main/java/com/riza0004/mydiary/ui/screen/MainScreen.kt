@@ -89,6 +89,9 @@ fun MainScreen(navHostController: NavHostController = rememberNavController()){
             navHostController.navigate("formScreen")
             goToForm = false
         }
+        if(user.email.isNotEmpty()){
+            viewModel.retrieveData(user.email)
+        }
     }
     Scaffold(
         topBar = {
@@ -193,7 +196,7 @@ fun MainScreen(navHostController: NavHostController = rememberNavController()){
                         text = stringResource(R.string.failed_json)
                     )
                     Button(
-                        onClick = { viewModel.retrieveData() }
+                        onClick = { viewModel.retrieveData(user.email) }
                     ) {
                         Text(
                             text = stringResource(R.string.try_again)

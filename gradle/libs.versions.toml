@@ -13,7 +13,7 @@ credentials = "1.5.0"
 coilCompose = "2.7.0"
 googleId = "1.1.1"
 datastorePreferences = "1.1.4"
-moshi-kotlin = "1.9.3"
+moshi-kotlin = "1.15.0"
 retrofit = "2.10.0"
 
 [libraries]

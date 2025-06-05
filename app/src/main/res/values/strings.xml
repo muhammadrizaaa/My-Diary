@@ -6,6 +6,10 @@
     <string name="profile">Profile</string>
     <string name="sign_in">Sign In</string>
 
+    <string name="empty_list">Seems Empty here</string>
+    <string name="failed_json">Failed to load data..</string>
+    <string name="try_again">Try Again</string>
+
     <string name="title_txt_field">Title</string>
     <string name="title_txt_field_err">Fill the title first</string>
     <string name="content_txt_field">Content</string>

@@ -5,13 +5,22 @@ import android.content.res.Configuration
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -34,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.credentials.ClearCredentialStateRequest
@@ -43,6 +54,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
@@ -52,9 +64,12 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.riza0004.mydiary.BuildConfig
 import com.riza0004.mydiary.R
+import com.riza0004.mydiary.dataclass.Notes
 import com.riza0004.mydiary.dataclass.User
+import com.riza0004.mydiary.network.ApiStatus
 import com.riza0004.mydiary.network.UserDataStore
 import com.riza0004.mydiary.ui.dialog.ProfileDialog
+import com.riza0004.mydiary.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -67,6 +82,8 @@ fun MainScreen(navHostController: NavHostController = rememberNavController()){
     val user by dataStore.userFlow.collectAsState(User())
     var showProfileDialog by remember { mutableStateOf(false) }
     var goToForm by remember { mutableStateOf(false) }
+    val viewModel:MainViewModel = viewModel()
+    val status = viewModel.status.collectAsState()
     LaunchedEffect(user.email) {
         if(user.email.isNotEmpty() && goToForm){
             navHostController.navigate("formScreen")
@@ -115,8 +132,13 @@ fun MainScreen(navHostController: NavHostController = rememberNavController()){
                                 contentScale = ContentScale.Crop,
                                 placeholder = painterResource(R.drawable.loading_img),
                                 error = painterResource(R.drawable.baseline_broken_image_24),
-                                modifier = Modifier.size(100.dp).clip(CircleShape).border(
-                                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary), shape = CircleShape)
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .clip(CircleShape)
+                                    .border(
+                                        BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                                        shape = CircleShape
+                                    )
                             )
 
                         }
@@ -144,9 +166,49 @@ fun MainScreen(navHostController: NavHostController = rememberNavController()){
         }
     ) {innerPadding->
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(text = "Hello Android")
+            when(status.value){
+                ApiStatus.SUCCESS-> {
+                    if(viewModel.data.value.isEmpty()){
+                        Text(stringResource(R.string.empty_list))
+                    }
+                    else{
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 84.dp)
+                        ) {
+                            items(viewModel.data.value){
+                                ListItem(it)
+                            }
+                        }
+                    }
+                    }
+                ApiStatus.FAILED -> {
+                    Text(
+                        text = stringResource(R.string.failed_json)
+                    )
+                    Button(
+                        onClick = { viewModel.retrieveData() }
+                    ) {
+                        Text(
+                            text = stringResource(R.string.try_again)
+                        )
+                    }
+                }
+                ApiStatus.LOADING -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ){
+                        CircularProgressIndicator()
+                    }
+                }
+            }
         }
         if(showProfileDialog){
             ProfileDialog(
@@ -160,6 +222,28 @@ fun MainScreen(navHostController: NavHostController = rememberNavController()){
                 }
             )
         }
+    }
+}
+
+@Composable
+fun ListItem(notes: Notes){
+    Column(
+        modifier = Modifier.padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = notes.title,
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = notes.title,
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis
+        )
+        HorizontalDivider()
     }
 }
 

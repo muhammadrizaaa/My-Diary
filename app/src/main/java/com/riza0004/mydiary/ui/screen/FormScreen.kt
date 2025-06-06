@@ -185,7 +185,8 @@ fun FormScreen(navHostController: NavHostController = rememberNavController()){
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done,
                     capitalization = KeyboardCapitalization.Sentences
-                )
+                ),
+                maxLines = 4
             )
         }
     }

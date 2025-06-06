@@ -10,6 +10,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -26,13 +27,21 @@ interface NotesApiServices {
     suspend fun getNotes(
         @Query("email") email: String
     ): List<Notes>
+
     @POST("notes")
     suspend fun postNotes(
         @Body note: Notes
     ): Response<Notes>
+
     @DELETE("notes/{id}")
     suspend fun deleteNotes(
         @Path("id") id: String
+    ): Response<Notes>
+
+    @PUT("notes/{id}")
+    suspend fun editNotes(
+        @Path("id") id: String,
+        @Body note: Notes
     ): Response<Notes>
 }
 

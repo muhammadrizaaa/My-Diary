@@ -71,6 +71,7 @@ import com.riza0004.mydiary.dataclass.User
 import com.riza0004.mydiary.network.ApiStatus
 import com.riza0004.mydiary.network.UserDataStore
 import com.riza0004.mydiary.ui.dialog.DeleteDialog
+import com.riza0004.mydiary.ui.dialog.EditDialog
 import com.riza0004.mydiary.ui.dialog.ProfileDialog
 import com.riza0004.mydiary.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -243,6 +244,7 @@ fun ListItem(
     idUser: String
 ){
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showEditDialog by remember { mutableStateOf(false) }
     if(showDeleteDialog){
         DeleteDialog(
             note = notes,
@@ -253,18 +255,34 @@ fun ListItem(
             onDismissReq = {showDeleteDialog = false}
         )
     }
+    if(showEditDialog){
+        EditDialog(
+            note = notes,
+            onConfirm = {title, content ->
+                val noteToEdit = notes.copy(
+                    title = title,
+                    content = content
+                )
+                viewModel.editData(noteToEdit)
+                showEditDialog = false
+            },
+            onDismissReq = {
+                showEditDialog = false
+            }
+        )
+    }
     Column(
         modifier = Modifier.padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .padding(vertical = 8.dp)
+                    .padding(8.dp)
                     .size(60.dp)
                     .border(border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary))
             ){
@@ -301,10 +319,16 @@ fun ListItem(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = notes.title,
+                    text = notes.content,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
+                )
+            }
+            IconButton(onClick = {showEditDialog = true}) {
+                Icon(
+                    painterResource(R.drawable.baseline_edit_24),
+                    contentDescription = stringResource(R.string.edit)
                 )
             }
             IconButton(onClick = {showDeleteDialog = true}) {

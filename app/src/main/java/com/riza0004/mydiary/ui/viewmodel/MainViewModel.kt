@@ -35,7 +35,7 @@ class MainViewModel: ViewModel() {
                 if(data.value.isNotEmpty()){
                     status.value = ApiStatus.SUCCESS
                 }
-                if(e.message == "HTTP 404 Not Found"){
+                else if(e.message == "HTTP 404 Not Found"){
                     status.value = ApiStatus.EMPTY
                 }
                 else{
@@ -44,6 +44,7 @@ class MainViewModel: ViewModel() {
             }
         }
     }
+
     fun saveData(
         notes: Notes,
         imageFile: Bitmap,
@@ -97,6 +98,29 @@ class MainViewModel: ViewModel() {
                 }
             } catch (e: Exception){
                 Log.d("DELETE_NOTES", "Exception: ${e.message}")
+            }
+        }
+    }
+
+    fun editData(
+        notes: Notes
+    ){
+        viewModelScope.launch {
+            try {
+                val result = NotesApi.services.editNotes(
+                    id = notes.id,
+                    note = notes
+                )
+                if(result.isSuccessful){
+                    Log.d("EDIT_NOTES", "Success: ${result.code()}")
+                    retrieveData(notes.email)
+                }
+                else{
+                    Log.d("EDIT_NOTES", "Failed: ${result.message()}")
+                }
+            }
+            catch (e: Exception){
+                Log.d("EDIT_NOTES", "Exception: ${e.message}")
             }
         }
     }

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +43,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -166,7 +169,11 @@ fun FormScreen(navHostController: NavHostController = rememberNavController()){
                 label = { Text(stringResource(R.string.title_txt_field)) },
                 isError = nameIsErr,
                 supportingText = { FormIsErr(nameIsErr, stringResource(R.string.title_txt_field_err)) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next,
+                    capitalization = KeyboardCapitalization.Words
+                )
             )
             OutlinedTextField(
                 value = content,
@@ -174,7 +181,11 @@ fun FormScreen(navHostController: NavHostController = rememberNavController()){
                 label = { Text(stringResource(R.string.content_txt_field)) },
                 isError = contentIsErr,
                 supportingText = { FormIsErr(contentIsErr, stringResource(R.string.content_txt_field_err)) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    capitalization = KeyboardCapitalization.Sentences
+                )
             )
         }
     }

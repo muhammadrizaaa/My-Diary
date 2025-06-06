@@ -7,8 +7,10 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 private const val BASE_URL = "https://68416148d48516d1d35b5151.mockapi.io/"
@@ -28,6 +30,10 @@ interface NotesApiServices {
     suspend fun postNotes(
         @Body note: Notes
     ): Response<Notes>
+    @DELETE("notes/{id}")
+    suspend fun deleteNotes(
+        @Path("id") id: String
+    ): Response<Notes>
 }
 
 object NotesApi{
@@ -35,4 +41,4 @@ object NotesApi{
         retrofit.create(NotesApiServices::class.java)
     }
 }
- enum class ApiStatus{LOADING, SUCCESS, FAILED}
+ enum class ApiStatus{LOADING, SUCCESS, FAILED, EMPTY}

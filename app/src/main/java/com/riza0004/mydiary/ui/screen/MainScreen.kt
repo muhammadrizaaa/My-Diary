@@ -70,6 +70,7 @@ import com.riza0004.mydiary.dataclass.Notes
 import com.riza0004.mydiary.dataclass.User
 import com.riza0004.mydiary.network.ApiStatus
 import com.riza0004.mydiary.network.UserDataStore
+import com.riza0004.mydiary.ui.dialog.DeleteDialog
 import com.riza0004.mydiary.ui.dialog.ProfileDialog
 import com.riza0004.mydiary.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -93,6 +94,9 @@ fun MainScreen(navHostController: NavHostController = rememberNavController()){
         }
         if(user.email.isNotEmpty()){
             viewModel.retrieveData(user.email)
+        }
+        else{
+            viewModel.retrieveData("-")
         }
     }
     Scaffold(
@@ -179,20 +183,19 @@ fun MainScreen(navHostController: NavHostController = rememberNavController()){
         ) {
             when(status.value){
                 ApiStatus.SUCCESS-> {
-                    if(viewModel.data.value.isEmpty()){
-                        Text(stringResource(R.string.empty_list))
-                    }
-                    else{
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(bottom = 84.dp)
-                        ) {
-                            items(viewModel.data.value){
-                                ListItem(it)
-                            }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 84.dp)
+                    ) {
+                        items(viewModel.data.value){
+                            ListItem(
+                                it,
+                                viewModel,
+                                idUser = user.email
+                            )
                         }
                     }
-                    }
+                }
                 ApiStatus.FAILED -> {
                     Text(
                         text = stringResource(R.string.failed_json)
@@ -213,6 +216,9 @@ fun MainScreen(navHostController: NavHostController = rememberNavController()){
                         CircularProgressIndicator()
                     }
                 }
+                ApiStatus.EMPTY->{
+                    Text(stringResource(R.string.empty_list))
+                }
             }
         }
         if(showProfileDialog){
@@ -231,7 +237,22 @@ fun MainScreen(navHostController: NavHostController = rememberNavController()){
 }
 
 @Composable
-fun ListItem(notes: Notes){
+fun ListItem(
+    notes: Notes,
+    viewModel: MainViewModel,
+    idUser: String
+){
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    if(showDeleteDialog){
+        DeleteDialog(
+            note = notes,
+            onConfirm = {
+                viewModel.deleteData(notes.id, idUser = idUser)
+                showDeleteDialog = false
+            },
+            onDismissReq = {showDeleteDialog = false}
+        )
+    }
     Column(
         modifier = Modifier.padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -242,7 +263,10 @@ fun ListItem(notes: Notes){
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-                modifier = Modifier.padding(vertical = 8.dp).size(60.dp).border(border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary))
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .size(60.dp)
+                    .border(border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary))
             ){
                 AsyncImage(
                     modifier = Modifier.fillMaxSize(),
@@ -253,10 +277,10 @@ fun ListItem(notes: Notes){
                         .crossfade(true)
                         .listener(
                             onError = { request, throwable ->
-                                Log.e("COIL", "Image load failed", throwable.throwable)
+                                Log.e("COIL", "Image load failed ${request.error} ", throwable.throwable)
                             },
                             onSuccess = { request, result ->
-                                Log.d("COIL", "Image loaded successfully")
+                                Log.d("COIL", "Image loaded successfully ${request.data} ${result.request}")
                             }
                         )
                         .build(),
@@ -264,7 +288,10 @@ fun ListItem(notes: Notes){
                 )
             }
             Column(
-                modifier = Modifier.fillMaxWidth().padding(8.dp).weight(1f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
@@ -279,11 +306,8 @@ fun ListItem(notes: Notes){
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = notes.photo
-                )
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = {showDeleteDialog = true}) {
                 Icon(
                     painterResource(R.drawable.baseline_delete_24),
                     contentDescription = stringResource(R.string.delete)

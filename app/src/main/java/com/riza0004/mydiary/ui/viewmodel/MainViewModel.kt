@@ -32,7 +32,15 @@ class MainViewModel: ViewModel() {
                 status.value = ApiStatus.SUCCESS
             } catch (e: Exception){
                 Log.d("GET_NOTES_ERR", "Err: ${e.message}")
-                status.value = ApiStatus.FAILED
+                if(data.value.isNotEmpty()){
+                    status.value = ApiStatus.SUCCESS
+                }
+                if(e.message == "HTTP 404 Not Found"){
+                    status.value = ApiStatus.EMPTY
+                }
+                else{
+                    status.value = ApiStatus.FAILED
+                }
             }
         }
     }
@@ -69,6 +77,26 @@ class MainViewModel: ViewModel() {
             }catch (e: Exception) {
                 Log.d("POST_NOTES", "Exception: ${e.message}")
                 onFailed("${e.message}")
+            }
+        }
+    }
+
+    fun deleteData(
+        id: String,
+        idUser: String
+    ){
+        viewModelScope.launch {
+            try {
+                val result = NotesApi.services.deleteNotes(id)
+                if(result.isSuccessful){
+                    Log.d("DELETE_NOTES", "Success: ${result.code()}")
+                    retrieveData(idUser)
+                }
+                else{
+                    Log.d("DELETE_NOTES", "Failed: ${result.message()}")
+                }
+            } catch (e: Exception){
+                Log.d("DELETE_NOTES", "Exception: ${e.message}")
             }
         }
     }

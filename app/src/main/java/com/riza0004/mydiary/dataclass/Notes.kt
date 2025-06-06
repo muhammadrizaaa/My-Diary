@@ -5,5 +5,6 @@ data class Notes(
     val content: String,
     val email: String,
     val photo: String,
+    val delPhoto: String,
     val id: String = ""
 )

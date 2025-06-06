@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -234,18 +236,60 @@ fun ListItem(notes: Notes){
         modifier = Modifier.padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = notes.title,
-            style = MaterialTheme.typography.titleMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        Text(
-            text = notes.title,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.padding(vertical = 8.dp).size(60.dp).border(border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary))
+            ){
+                AsyncImage(
+                    modifier = Modifier.fillMaxSize(),
+                    placeholder = painterResource(R.drawable.loading_img),
+                    error = painterResource(R.drawable.baseline_broken_image_24),
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(notes.photo)
+                        .crossfade(true)
+                        .listener(
+                            onError = { request, throwable ->
+                                Log.e("COIL", "Image load failed", throwable.throwable)
+                            },
+                            onSuccess = { request, result ->
+                                Log.d("COIL", "Image loaded successfully")
+                            }
+                        )
+                        .build(),
+                    contentDescription = null
+                )
+            }
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(8.dp).weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = notes.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = notes.title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = notes.photo
+                )
+            }
+            IconButton(onClick = {}) {
+                Icon(
+                    painterResource(R.drawable.baseline_delete_24),
+                    contentDescription = stringResource(R.string.delete)
+                )
+            }
+        }
         HorizontalDivider()
     }
 }

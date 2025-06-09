@@ -1,5 +1,6 @@
 package com.riza0004.mydiary.ui.screen
 
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.res.Configuration
 import android.graphics.Bitmap
@@ -57,9 +58,12 @@ import com.canhub.cropper.CropImageView
 import com.riza0004.mydiary.R
 import com.riza0004.mydiary.dataclass.Notes
 import com.riza0004.mydiary.dataclass.User
+import com.riza0004.mydiary.network.AddStatus
 import com.riza0004.mydiary.network.UserDataStore
+import com.riza0004.mydiary.ui.dialog.LoadingDialog
 import com.riza0004.mydiary.ui.viewmodel.MainViewModel
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormScreen(navHostController: NavHostController = rememberNavController()){
@@ -75,6 +79,7 @@ fun FormScreen(navHostController: NavHostController = rememberNavController()){
     val launcher = rememberLauncherForActivityResult(CropImageContract()) {
         bitmap = getCroppedImage(context.contentResolver, it)
     }
+    var isLoading by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -97,7 +102,15 @@ fun FormScreen(navHostController: NavHostController = rememberNavController()){
                             nameIsErr = name.isBlank()
                             contentIsErr = content.isBlank()
                             if(!nameIsErr && !contentIsErr){
+                                isLoading = when(viewModel.addStatus.value){
+                                    AddStatus.DONE -> {
+                                        false
+                                    }
 
+                                    AddStatus.LOADING -> {
+                                        true
+                                    }
+                                }
                                 viewModel.saveData(
                                     Notes(
                                         title = name,
@@ -124,6 +137,9 @@ fun FormScreen(navHostController: NavHostController = rememberNavController()){
             )
         }
     ) {innerPadding->
+        if(isLoading){
+            LoadingDialog()
+        }
         Column(
             modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),

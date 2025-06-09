@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.riza0004.mydiary.dataclass.Notes
+import com.riza0004.mydiary.network.AddStatus
 import com.riza0004.mydiary.network.ApiStatus
 import com.riza0004.mydiary.network.ImgbbApi
 import com.riza0004.mydiary.network.NotesApi
@@ -22,6 +23,9 @@ class MainViewModel: ViewModel() {
         private set
 
     var status = MutableStateFlow(ApiStatus.LOADING)
+        private set
+
+    var addStatus = MutableStateFlow(AddStatus.LOADING)
         private set
 
     fun retrieveData(idUser: String){
@@ -52,6 +56,7 @@ class MainViewModel: ViewModel() {
         onFailed: (String) -> Unit
     ){
         viewModelScope.launch {
+            addStatus.value = AddStatus.LOADING
             try {
                 val resultImg = ImgbbApi.services.uploadImage(
                     image = imageFile.toMultipartBody()
@@ -66,17 +71,21 @@ class MainViewModel: ViewModel() {
 
                     if (result.isSuccessful) {
                         Log.d("POST_NOTES", "Success: ${result.code()}")
+                        addStatus.value = AddStatus.DONE
                         onSuccess()
                     } else {
                         Log.d("POST_NOTES", "Failed: ${result.message()}")
+                        addStatus.value = AddStatus.DONE
                         onFailed(result.message())
                     }
                 } else {
                     Log.d("IMG_POST", "Image upload failed: ${resultImg.status}")
+                    addStatus.value = AddStatus.DONE
                     onFailed("${resultImg.status}")
                 }
             }catch (e: Exception) {
                 Log.d("POST_NOTES", "Exception: ${e.message}")
+                addStatus.value = AddStatus.DONE
                 onFailed("${e.message}")
             }
         }

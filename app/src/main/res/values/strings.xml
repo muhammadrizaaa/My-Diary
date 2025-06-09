@@ -18,6 +18,7 @@
     <string name="content_txt_field_err">Fill the content first</string>
     <string name="add_img_btn">Add Image</string>
     <string name="save">Save</string>
+    <string name="please_wait">Please Wait</string>
 
     <string name="close">Close</string>
     <string name="logout">Log Out</string>

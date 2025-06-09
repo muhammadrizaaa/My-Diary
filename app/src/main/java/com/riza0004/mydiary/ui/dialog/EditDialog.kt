@@ -111,7 +111,7 @@ fun EditDialog(
                         onClick = {
                             onConfirm(title, content)
                         },
-                        enabled = (title.isNotEmpty()&&content.isNotEmpty()),
+                        enabled = (title.isNotEmpty()&&content.isNotEmpty()) && (title != note.title || content != note.content),
                         modifier = Modifier.padding(8.dp)
                     ) {
                         Text(stringResource(R.string.save))

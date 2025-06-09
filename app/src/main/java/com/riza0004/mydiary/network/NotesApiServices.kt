@@ -50,4 +50,6 @@ object NotesApi{
         retrofit.create(NotesApiServices::class.java)
     }
 }
- enum class ApiStatus{LOADING, SUCCESS, FAILED, EMPTY}
+enum class ApiStatus{LOADING, SUCCESS, FAILED, EMPTY}
+
+enum class AddStatus{LOADING, DONE}
